@@ -1,0 +1,62 @@
+# coding: utf-8
+import matplotlib.pyplot as plt
+from numpy import *
+#导入数据集
+def loadDataSet():
+    dataMat = [];labelMat = []
+    fr = open('testSet.txt')
+    for line in fr.readlines():
+        lineArr = line.strip().split()
+        dataMat.append([1.0,float(lineArr[0]),float(lineArr[1])])
+        labelMat.append(int(lineArr[2]))
+    return dataMat,labelMat
+def sigmoid(inx):
+    return 1.0 /(1 + exp(inx))
+def gradAscent(dataMatIn,classLabels):
+    dataMatrix = mat(dataMatIn) #convert to Numpy matrix
+    labelMat = mat(classLabels).transpose() #convert to Numpy matrix
+    m,n = shape(dataMatrix)
+    alpha = 0.001
+    maxCycles = 500
+    weights = ones((n,1))
+    for k in range(maxCycles):
+        h = sigmoid(dataMatrix * weights)
+        error = (labelMat - h)
+        weights = weights - alpha * dataMatrix.transpose()*error #用矩阵乘法表示的导数
+    return weights
+def plotBestFit(weights):
+    dataMat,labelMat = loadDataSet()
+    dataArr = array(dataMat)
+    n = shape(dataArr)[0] #行数
+    xcord1 = []; ycord1 = []
+    xcord2 = [];ycord2 = []
+    for i in range(n):
+        if int(labelMat[i]) == 1:
+            xcord1.append(dataArr[i,1]); ycord1.append(dataArr[i,2])
+        else:
+            xcord2.append(dataArr[i,1]);ycord2.append((dataArr[i,2]))
+    fig = plt.figure()
+    ax = fig.add_subplot(111)#1行1列的图
+    ax.scatter(xcord1, ycord1, s=30, c='red', marker='s')# scatter 散点图 s: 方块
+    ax.scatter(xcord2, ycord2, s=30, c='green') # 最后一个参数 默认是 圆形
+    x = arange(-3.0, 3.0, 0.1)#arange()类似于内置函数range()，通过指定开始值、终值和步长创建表示等差数列的一维数组，注意得到的结果数组不包含终值
+    # 拟合曲线为0 = w0*x0+w1*x1+w2*x2, 故x2 = (-w0*x0-w1*x1)/w2, x0为1,x1为x, x2为y,故有
+    y = (-(float)(weights[0][0])-(float)(weights[1][0])*x)/(float)(weights[2][0])
+    ax.plot(x, y)
+    plt.xlabel('X1');
+    plt.ylabel('X2');
+    plt.show()
+def GetResult():
+    dataMat,labelMat=loadDataSet()
+    weights=gradAscent(dataMat,labelMat)
+    print(weights)
+    plotBestFit(weights)
+if __name__ == '__main__':
+    GetResult()
+
+
+
+
+
+
+
